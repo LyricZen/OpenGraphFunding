@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Funding Registration Success</title>
+</head>
+<body>
+<h1>Funding Registration Successful</h1>
+<p>Congratulations! Your funding has been successfully registered.</p>
+
+<h2>Funding Details</h2>
+<p>Title: <span th:text="${savedFunding.title}"></span></p>
+<p>Content: <span th:text="${savedFunding.content}"></span></p>
+<p>Goal Amount: <span th:text="${savedFunding.goalAmount}"></span></p>
+
+<!-- You can add more details as needed -->
+
+<!-- You can also display the product details if available -->
+<h2>Product Details</h2>
+<p>Product Name: <span th:text="${savedFunding.product.name}"></span></p>
+<p>Product Image: <img th:src="${savedFunding.product.image}" alt="Product Image"></p>
+
+<!-- You can add more content or styling based on your requirements -->
+</body>
+</html>

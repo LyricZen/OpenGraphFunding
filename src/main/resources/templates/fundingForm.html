@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Funding Form</title>
+</head>
+<body>
+
+<h1>Funding Form - Product Link</h1>
+
+<form action="/funding/saveToCache" method="post">
+    <label for="productLink">Product Link:</label>
+    <input type="text" id="productLink" name="productLink" required>
+    <button type="submit">Add Product</button>
+</form>
+
+<hr>
+
+<!-- Display cached product information -->
+<h2>Cached Product Information:</h2>
+<div th:if="${fundingProduct != null}">
+    <p>Product Link: <span th:text="${fundingProduct.productLink}"></span></p>
+    <p>Product Name: <span th:text="${fundingProduct.productName}"></span></p>
+    <p>Product Image: <img th:src="${fundingProduct.productImage}" alt="Product Image"></p>
+</div>
+
+</body>
+</html>
