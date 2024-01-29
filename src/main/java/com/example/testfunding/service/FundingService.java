@@ -3,9 +3,7 @@ package com.example.testfunding.service;
 import com.example.testfunding.dto.FundingDetails;
 import com.example.testfunding.entity.Funding;
 import com.example.testfunding.entity.FundingProduct;
-import com.example.testfunding.entity.Product;
 import com.example.testfunding.repository.FundingRepository;
-import com.example.testfunding.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -23,7 +21,6 @@ import static org.hibernate.query.sqm.tree.SqmNode.log;
 public class FundingService {
 
     private final RedisTemplate<String, Object> redisTemplate;
-    private final ProductRepository productRepository;
     private final FundingRepository fundingRepository;
 
     public void saveToCache(String productLink) {
@@ -85,18 +82,16 @@ public class FundingService {
         try {
             FundingProduct fundingProduct = getCachedFundingProduct();
             if (fundingProduct != null) {
-                Product product = new Product();
-                product.setName(fundingProduct.getProductName());
-                product.setImage(fundingProduct.getProductImage());
-                Product savedProduct = productRepository.save(product);
+                Funding foundfundingProduct = new Funding();
+                foundfundingProduct.setProductLink(fundingProduct.getProductLink());
+                foundfundingProduct.setProductName(fundingProduct.getProductName());
+                foundfundingProduct.setProductImage(fundingProduct.getProductImage());
 
-                Funding funding = new Funding();
-                funding.setTitle(fundingDetails.getTitle());
-                funding.setContent(fundingDetails.getContent());
-                funding.setGoalAmount(fundingDetails.getGoalAmount());
-                funding.setProduct(savedProduct);
+                foundfundingProduct.setTitle(fundingDetails.getTitle());
+                foundfundingProduct.setContent(fundingDetails.getContent());
+                foundfundingProduct.setGoalAmount(fundingDetails.getGoalAmount());
 
-                Funding successFunding = fundingRepository.save(funding);
+                Funding successFunding = fundingRepository.save(foundfundingProduct);
                 clearCache();
                 return successFunding;
             }

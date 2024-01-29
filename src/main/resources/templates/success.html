@@ -1,26 +1,77 @@
+<!--<!DOCTYPE html>-->
+<!--<html lang="en" xmlns:th="http://www.thymeleaf.org">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+<!--    <title>Funding Registration Success</title>-->
+<!--</head>-->
+<!--<body>-->
+<!--<h1>Funding Registration Successful</h1>-->
+<!--<p>Congratulations! Your funding has been successfully registered.</p>-->
+
+<!--<h2>Funding Details</h2>-->
+<!--<p>Title: <span th:text="${savedFunding.title}"></span></p>-->
+<!--<p>Content: <span th:text="${savedFunding.content}"></span></p>-->
+<!--<p>Goal Amount: <span th:text="${savedFunding.goalAmount}"></span></p>-->
+
+<!--&lt;!&ndash; You can add more details as needed &ndash;&gt;-->
+
+<!--&lt;!&ndash; You can also display the product details if available &ndash;&gt;-->
+<!--<h2>Product Details</h2>-->
+<!--<p>Product Name: <span th:text="${savedFunding.product.name}"></span></p>-->
+<!--<p>Product Image: <img th:src="${savedFunding.product.image}" alt="Product Image"></p>-->
+
+<!--&lt;!&ndash; You can add more content or styling based on your requirements &ndash;&gt;-->
+<!--</body>-->
+<!--</html>-->
+<!--<!DOCTYPE html>-->
+<!--<html lang="en" xmlns:th="http://www.thymeleaf.org">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+<!--    <title>Funding Registration Success</title>-->
+<!--</head>-->
+<!--<body>-->
+<!--<h1>Funding Registration Successful</h1>-->
+<!--<p>Congratulations! Your funding has been successfully registered.</p>-->
+
+<!--<h2>Funding Details</h2>-->
+<!--<p>Title: <span th:text="${savedFunding != null ? savedFunding.title : 'N/A'}"></span></p>-->
+<!--<p>Content: <span th:text="${savedFunding != null ? savedFunding.content : 'N/A'}"></span></p>-->
+<!--<p>Goal Amount: <span th:text="${savedFunding != null ? savedFunding.goalAmount : 'N/A'}"></span></p>-->
+
+<!--&lt;!&ndash; You can add more details as needed &ndash;&gt;-->
+
+<!--&lt;!&ndash; You can also display the product details if available &ndash;&gt;-->
+<!--<h2>Product Details</h2>-->
+<!--&lt;!&ndash; Perform Null check on savedFunding and savedFunding.product &ndash;&gt;-->
+<!--<div th:if="${savedFunding != null and savedFunding.product != null}">-->
+<!--    <p>Product Name: <span th:text="${savedFunding.product.name}"></span></p>-->
+<!--    <p>Product Image: <img th:src="${savedFunding.product.image}" alt="Product Image"></p>-->
+<!--</div>-->
+<!--&lt;!&ndash; Add an alternative message if product details are not available &ndash;&gt;-->
+<!--<div th:if="${savedFunding == null or savedFunding.product == null}">-->
+<!--    <p>Product details not available</p>-->
+<!--</div>-->
+
+<!--&lt;!&ndash; You can add more content or styling based on your requirements &ndash;&gt;-->
+<!--</body>-->
+<!--</html>-->
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Funding Registration Success</title>
+    <title>Funding Details</title>
 </head>
 <body>
-<h1>Funding Registration Successful</h1>
-<p>Congratulations! Your funding has been successfully registered.</p>
-
 <h2>Funding Details</h2>
-<p>Title: <span th:text="${savedFunding.title}"></span></p>
-<p>Content: <span th:text="${savedFunding.content}"></span></p>
-<p>Goal Amount: <span th:text="${savedFunding.goalAmount}"></span></p>
-
-<!-- You can add more details as needed -->
-
-<!-- You can also display the product details if available -->
-<h2>Product Details</h2>
-<p>Product Name: <span th:text="${savedFunding.product.name}"></span></p>
-<p>Product Image: <img th:src="${savedFunding.product.image}" alt="Product Image"></p>
-
-<!-- You can add more content or styling based on your requirements -->
+<div>
+    <p>Title: <span th:text="${savedFunding.title}"></span></p>
+    <p>Content: <span th:text="${savedFunding.content}"></span></p>
+    <p>Goal Amount: <span th:text="${savedFunding.goalAmount}"></span></p>
+    <p>Product Name: <span th:text="${savedFunding.productName}"></span></p>
+    <p>Product Image: <img th:src="${savedFunding.productImage}" alt="Product Image"></p>
+    <p>Product Link: <a th:href="${savedFunding.productLink}" th:text="${savedFunding.productLink}"></a></p>
+</div>
 </body>
 </html>

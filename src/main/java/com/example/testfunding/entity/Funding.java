@@ -19,15 +19,21 @@ public class Funding {
     private String title;
     private String content;
     private Integer goalAmount;
+    private String productName;
+    private String productImage;
+    private String productLink;
 
-    @OneToOne
-    @JoinColumn(name = "product_id")
-    private Product product;
-
-    public Funding(String title,String content ,Integer goalAmount, Product product) {
+    public Funding(String title,String content ,Integer goalAmount, String productName, String productImage) {
         this.title = title;
         this.content = content;
         this.goalAmount = goalAmount;
-        this.product = product;
+        this.productName = productName;
+        this.productImage = productImage;
+    }
+
+    public Funding(String productLink, String productName, String productImage) {
+        this.productLink = productLink;
+        this.productName = productName;
+        this.productImage = productImage;
     }
 }

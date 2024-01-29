@@ -39,7 +39,6 @@
     <button type="submit">Save Funding</button>
 </form>
 
-<!-- JavaScript to handle AJAX requests and update the preview section -->
 <script th:inline="javascript">
     function previewProduct() {
         var productLink = $("#productLink").val();
@@ -51,15 +50,19 @@
                 data: { productLink: productLink },
                 dataType: "json",
                 success: function (data) {
-                    // Show the preview product information
-                    var previewSection = $("#previewProductInfo");
-                    previewSection.html("<h3>Preview Product Information:</h3>" +
-                        "<p>Product Link: " + data.productLink + "</p>" +
-                        "<p>Product Name: " + data.productName + "</p>" +
-                        "<p>Product Image: <img src='" + data.productImage + "' alt='Product Image'></p>");
+                    // Show the preview product information if available
+                    if (data && data.productLink && data.productName && data.productImage) {
+                        var previewSection = $("#previewProductInfo");
+                        previewSection.html("<h3>Preview Product Information:</h3>" +
+                            "<p>Product Link: " + data.productLink + "</p>" +
+                            "<p>Product Name: " + data.productName + "</p>" +
+                            "<p>Product Image: <img src='" + data.productImage + "' alt='Product Image'></p>");
 
-                    // 추가: 상품 정보를 캐시에 저장
-                    $.post("/funding/saveToCache", { productLink: productLink });
+                        // Store product information in the cache
+                        $.post("/funding/saveToCache", { productLink: productLink });
+                    } else {
+                        alert("Failed to fetch product information. Please try again.");
+                    }
                 }
             });
         }
@@ -68,19 +71,12 @@
     function clearPreview() {
         // Clear the preview section
         $("#previewProductInfo").empty();
-        // Reset form fields including product link
-        // $("#title").val("");
-        // $("#content").val("");
-        // $("#goalAmount").val("");
-        // Clear other fields if needed
-
         // Clear the product link
         $("#productLink").val("");
 
-        // 추가: 캐시에 저장된 상품 정보를 삭제
-        $.post("/funding/clearCachedProduct", { productLink: $("#productLink").val() });
+        // Clear the cached product information
+        $.post("/funding/clearCachedProduct");
     }
 </script>
-
 </body>
 </html>
