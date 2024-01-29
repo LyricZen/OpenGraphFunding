@@ -4,26 +4,83 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Funding Form</title>
+
+    <!-- jQuery 라이브러리 추가 -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 </head>
 <body>
 
 <h1>Funding Form - Product Link</h1>
 
-<form action="/funding/saveToCache" method="post">
+<form id="linkForm">
     <label for="productLink">Product Link:</label>
     <input type="text" id="productLink" name="productLink" required>
-    <button type="submit">Add Product</button>
+    <button type="button" onclick="previewProduct()">상품 등록</button>
+    <button type="button" onclick="clearPreview()">상품 삭제</button>
 </form>
 
 <hr>
 
-<!-- Display cached product information -->
-<h2>Cached Product Information:</h2>
-<div th:if="${fundingProduct != null}">
-    <p>Product Link: <span th:text="${fundingProduct.productLink}"></span></p>
-    <p>Product Name: <span th:text="${fundingProduct.productName}"></span></p>
-    <p>Product Image: <img th:src="${fundingProduct.productImage}" alt="Product Image"></p>
-</div>
+<!-- Display preview product information -->
+<h2>Preview Product Information:</h2>
+<div id="previewProductInfo"></div>
+
+<form id="fundingForm" action="/funding/saveToDatabase" method="post">
+    <!-- Input fields for funding details -->
+    <label for="title">Funding 제목:</label>
+    <input type="text" id="title" name="title" required>
+    <br>
+    <label for="content">Funding 내용:</label>
+    <input type="text" id="content" name="content" required>
+    <br>
+    <label for="goalAmount">목표 금액:</label>
+    <input type="number" id="goalAmount" name="goalAmount" step="1" required>
+    <br>
+    <button type="submit">Save Funding</button>
+</form>
+
+<!-- JavaScript to handle AJAX requests and update the preview section -->
+<script th:inline="javascript">
+    function previewProduct() {
+        var productLink = $("#productLink").val();
+        if (productLink) {
+            // AJAX request to the server for preview product information
+            $.ajax({
+                type: "POST",
+                url: "/funding/previewProduct",
+                data: { productLink: productLink },
+                dataType: "json",
+                success: function (data) {
+                    // Show the preview product information
+                    var previewSection = $("#previewProductInfo");
+                    previewSection.html("<h3>Preview Product Information:</h3>" +
+                        "<p>Product Link: " + data.productLink + "</p>" +
+                        "<p>Product Name: " + data.productName + "</p>" +
+                        "<p>Product Image: <img src='" + data.productImage + "' alt='Product Image'></p>");
+
+                    // 추가: 상품 정보를 캐시에 저장
+                    $.post("/funding/saveToCache", { productLink: productLink });
+                }
+            });
+        }
+    }
+
+    function clearPreview() {
+        // Clear the preview section
+        $("#previewProductInfo").empty();
+        // Reset form fields including product link
+        // $("#title").val("");
+        // $("#content").val("");
+        // $("#goalAmount").val("");
+        // Clear other fields if needed
+
+        // Clear the product link
+        $("#productLink").val("");
+
+        // 추가: 캐시에 저장된 상품 정보를 삭제
+        $.post("/funding/clearCachedProduct", { productLink: $("#productLink").val() });
+    }
+</script>
 
 </body>
 </html>

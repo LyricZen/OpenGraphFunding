@@ -1,5 +1,6 @@
 package com.example.testfunding.service;
 
+import com.example.testfunding.dto.FundingDetails;
 import com.example.testfunding.entity.Funding;
 import com.example.testfunding.entity.FundingProduct;
 import com.example.testfunding.entity.Product;
@@ -9,21 +10,20 @@ import lombok.RequiredArgsConstructor;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+
+import static org.hibernate.query.sqm.tree.SqmNode.log;
 
 @Service
 @RequiredArgsConstructor
 public class FundingService {
 
-
     private final RedisTemplate<String, Object> redisTemplate;
-
     private final ProductRepository productRepository;
-
     private final FundingRepository fundingRepository;
 
     public void saveToCache(String productLink) {
@@ -41,7 +41,6 @@ public class FundingService {
             e.printStackTrace();
             // 예외 처리: 상품 정보를 가져오지 못할 경우
         }
-
         redisTemplate.opsForValue().set("cachedFundingProduct", fundingProduct);
     }
 
@@ -49,32 +48,65 @@ public class FundingService {
         return (FundingProduct) redisTemplate.opsForValue().get("cachedFundingProduct");
     }
 
-    public Funding saveToDatabase(String fundingTitle,String fundingContent ,Integer fundingGoalAmount) {
-        FundingProduct fundingProduct = getCachedFundingProduct();
-        if (fundingProduct != null) {
-            // Product를 저장
-            Product product = new Product();
-            product.setName(fundingProduct.getProductName());
-            product.setImage(fundingProduct.getProductImage());
+    // 새로운 메서드 추가
+    public FundingProduct previewProduct(String productLink) {
+        FundingProduct fundingProduct = new FundingProduct();
+        fundingProduct.setProductLink(productLink);
 
-            // Product를 저장하고 저장된 Product를 반환
-            Product savedProduct = productRepository.save(product);
+        try {
+            Document document = Jsoup.connect(productLink).timeout(10000).get();
 
-            // Funding을 저장할 때 OneToOne 관계로 설정
-            Funding funding = new Funding();
-            funding.setTitle(fundingTitle);
-            funding.setContent(fundingContent);
-            funding.setGoalAmount(fundingGoalAmount);
-            funding.setProduct(savedProduct);
+            // 예외 처리: 상품 정보를 가져오지 못할 경우
+            if (document == null) {
+                return null;
+            }
 
-            Funding successFunding = fundingRepository.save(funding);
-            clearCache();// 캐시 비우기 (원하는 시점에 호출하도록 수정)
-            // Funding을 저장하고 저장된 Funding을 반환
-            return successFunding;
+            String productName = getMetaTagContent(document, "og:title");
+            String productImage = getMetaTagContent(document, "og:image");
 
+            // 예외 처리: 필수 정보가 없을 경우
+            if (productName == null || productImage == null) {
+                return null;
+            }
+
+            fundingProduct.setProductName(productName);
+            fundingProduct.setProductImage(productImage);
+        } catch (IOException e) {
+            e.printStackTrace();
+            // 예외 처리: 상품 정보를 가져오지 못할 경우
+            return null;
         }
 
-        return null; // 혹시나 실패했을 경우 null을 반환하거나 예외 처리를 추가할 수 있습니다.
+        return fundingProduct;
+    }
+
+    @Transactional
+    public Funding saveToDatabase(FundingDetails fundingDetails) {
+        try {
+            FundingProduct fundingProduct = getCachedFundingProduct();
+            if (fundingProduct != null) {
+                Product product = new Product();
+                product.setName(fundingProduct.getProductName());
+                product.setImage(fundingProduct.getProductImage());
+                Product savedProduct = productRepository.save(product);
+
+                Funding funding = new Funding();
+                funding.setTitle(fundingDetails.getTitle());
+                funding.setContent(fundingDetails.getContent());
+                funding.setGoalAmount(fundingDetails.getGoalAmount());
+                funding.setProduct(savedProduct);
+
+                Funding successFunding = fundingRepository.save(funding);
+                clearCache();
+                return successFunding;
+            }
+        } catch (Exception e) {
+            // 콘솔에 로그 출력
+            log.error("Failed to save funding. Please check your input and try again.", e);
+            throw new RuntimeException("Failed to save funding. Please check your input and try again.", e);
+        }
+
+        return null;
     }
 
     public void clearCache() {
@@ -85,4 +117,5 @@ public class FundingService {
         Element metaTag = document.select("meta[property=" + property + "]").first();
         return (metaTag != null) ? metaTag.attr("content") : null;
     }
+
 }

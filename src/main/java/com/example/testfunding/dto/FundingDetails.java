@@ -4,7 +4,7 @@ public class FundingDetails {
 
     private String title;
     private String content;
-    private Integer goalAmount;
+    private int goalAmount;
 
     // 생성자, Getter, Setter 등 필요한 메서드를 추가할 수 있습니다.
 
@@ -12,7 +12,7 @@ public class FundingDetails {
         // 기본 생성자
     }
 
-    public FundingDetails(String title, String content, Integer goalAmount) {
+    public FundingDetails(String title, String content, int goalAmount) {
         this.title = title;
         this.content = content;
         this.goalAmount = goalAmount;
@@ -36,11 +36,11 @@ public class FundingDetails {
         this.content = content;
     }
 
-    public Integer getGoalAmount() {
+    public int getGoalAmount() {
         return goalAmount;
     }
 
-    public void setGoalAmount(Integer goalAmount) {
+    public void setGoalAmount(int goalAmount) {
         this.goalAmount = goalAmount;
     }
 }

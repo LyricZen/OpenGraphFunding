@@ -2,14 +2,12 @@ package com.example.testfunding.controller;
 
 import com.example.testfunding.dto.FundingDetails;
 import com.example.testfunding.entity.Funding;
+import com.example.testfunding.entity.FundingProduct;
 import com.example.testfunding.service.FundingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequestMapping("/funding")
@@ -25,6 +23,14 @@ public class FundingController {
         return "fundingForm";
     }
 
+    // AJAX 요청을 처리하는 컨트롤러 메서드 추가
+    @PostMapping("/previewProduct")
+    @ResponseBody
+    public FundingProduct previewProduct(@RequestParam String productLink) {
+        FundingProduct fundingProduct = fundingService.previewProduct(productLink);
+        return fundingProduct;
+    }
+
     @PostMapping("/saveToCache")
     public String saveToCache(String productLink) {
         fundingService.saveToCache(productLink);
@@ -33,14 +39,20 @@ public class FundingController {
 
     @PostMapping("/saveToDatabase")
     public String saveToDatabase(@ModelAttribute FundingDetails fundingDetails, Model model) {
-        Funding savedFunding = fundingService.saveToDatabase(fundingDetails.getTitle(), fundingDetails.getContent(),fundingDetails.getGoalAmount());
+        try {
+            Funding savedFunding = fundingService.saveToDatabase(fundingDetails);
 
-        if (savedFunding != null) {
-            model.addAttribute("savedFunding", savedFunding);
-            return "success";
-        } else {
-            // Handle the case where saving failed
-            return "redirect:/funding/error";
+            if (savedFunding != null) {
+                model.addAttribute("savedFunding", savedFunding);
+                return "success";
+            } else {
+                model.addAttribute("error", "Failed to save funding. Please check your input and try again.");
+                return "error";
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            model.addAttribute("error", "An error occurred while processing your request. Please try again later.");
+            return "error";
         }
     }
 
@@ -50,10 +62,4 @@ public class FundingController {
         return "redirect:/funding/cancel";
     }
 
-    @GetMapping("/details")
-    public String showFundingDetails(Model model) {
-        model.addAttribute("fundingProduct", fundingService.getCachedFundingProduct());
-        model.addAttribute("fundingDetails", new FundingDetails());
-        return "fundingDetailsForm";
-    }
 }
