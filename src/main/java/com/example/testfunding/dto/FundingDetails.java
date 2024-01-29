@@ -1,5 +1,10 @@
 package com.example.testfunding.dto;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class FundingDetails {
 
     private String title;
@@ -10,37 +15,5 @@ public class FundingDetails {
 
     public FundingDetails() {
         // 기본 생성자
-    }
-
-    public FundingDetails(String title, String content, int goalAmount) {
-        this.title = title;
-        this.content = content;
-        this.goalAmount = goalAmount;
-    }
-
-    // Getter, Setter 등 필요한 메서드를 추가하세요.
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public int getGoalAmount() {
-        return goalAmount;
-    }
-
-    public void setGoalAmount(int goalAmount) {
-        this.goalAmount = goalAmount;
     }
 }

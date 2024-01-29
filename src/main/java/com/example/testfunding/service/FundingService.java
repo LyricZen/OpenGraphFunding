@@ -85,19 +85,14 @@ public class FundingService {
         try {
             FundingProduct fundingProduct = getCachedFundingProduct();
             if (fundingProduct != null) {
-                Product product = new Product();
-                product.setName(fundingProduct.getProductName());
-                product.setImage(fundingProduct.getProductImage());
-                Product savedProduct = productRepository.save(product);
+                Product product = new Product(fundingProduct.getProductName(),fundingProduct.getProductImage());
+                productRepository.save(product);
 
-                Funding funding = new Funding();
-                funding.setTitle(fundingDetails.getTitle());
-                funding.setContent(fundingDetails.getContent());
-                funding.setGoalAmount(fundingDetails.getGoalAmount());
-                funding.setProduct(savedProduct);
-
+                Funding funding = new Funding(fundingDetails.getTitle(),fundingDetails.getContent(),fundingDetails.getGoalAmount(),product);
                 Funding successFunding = fundingRepository.save(funding);
+
                 clearCache();
+
                 return successFunding;
             }
         } catch (Exception e) {
