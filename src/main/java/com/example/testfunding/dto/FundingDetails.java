@@ -8,7 +8,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 public class FundingDetails {
-    private String publicName;
+    private String itemName;
     private String title;
     private String content;
     private Integer goalAmount;

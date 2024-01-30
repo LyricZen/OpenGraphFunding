@@ -75,6 +75,7 @@ public class FundingService {
             Funding funding = new Funding(
                     fundingItem.getItemLink(),
                     fundingItem.getItemImage(),
+                    fundingDetails.getItemName(),
                     fundingDetails.getTitle(),
                     fundingDetails.getContent(),
                     fundingDetails.getGoalAmount(),

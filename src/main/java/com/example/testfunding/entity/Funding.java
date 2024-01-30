@@ -20,15 +20,17 @@ public class Funding {
 
     private String itemLink;
     private String itemImage;
+    private String itemName;
     private String title;
     private String content;
     private Integer goalAmount;
     private boolean publicFlag = false;
     private LocalDate endDate;
 
-    public Funding(String itemLink, String itemImage, String title, String content, Integer goalAmount, boolean publicFlag, LocalDate endDate) {
+    public Funding(String itemLink, String itemImage, String itemName, String title, String content, Integer goalAmount, boolean publicFlag, LocalDate endDate) {
         this.itemLink = itemLink;
         this.itemImage = itemImage;
+        this.itemName = itemName;
         this.title = title;
         this.content = content;
         this.goalAmount = goalAmount;

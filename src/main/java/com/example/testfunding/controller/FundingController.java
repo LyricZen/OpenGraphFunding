@@ -20,7 +20,7 @@ public class FundingController {
 
     @GetMapping("/form")
     public String showFundingForm(Model model) {
-        model.addAttribute("fundingProduct", fundingService.getCachedFundingProduct());
+        model.addAttribute("fundingItem", fundingService.getCachedFundingProduct());
         model.addAttribute("fundingDetails", new FundingDetails());
         return "fundingForm";
     }

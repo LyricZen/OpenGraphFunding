@@ -35,8 +35,8 @@
     </div>
     <form th:action="@{/funding/saveToDatabase}" th:object="${fundingDetails}" method="post">
         <div>
-            <label for="publicName">상품 이름:</label>
-            <input type="text" th:field="*{publicName}" placeholder="상품 이름"/>
+            <label for="itemName">상품 이름:</label>
+            <input type="text" th:field="*{itemName}" placeholder="상품 이름"/>
         </div>
         <div>
             <label for="goalAmount">목표 금액:</label>
