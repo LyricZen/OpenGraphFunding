@@ -95,4 +95,7 @@ public class FundingService {
         return (metaTag != null) ? metaTag.attr("content") : null;
     }
 
+    public boolean clearCachedItem(String itemLink) {
+        return redisTemplate.delete(itemLink);
+    }
 }

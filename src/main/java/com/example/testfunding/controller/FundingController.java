@@ -54,7 +54,7 @@ public class FundingController {
     public ResponseEntity<?> clearCachedItem(@RequestParam String itemLink) {
         // 캐시 삭제 로직 구현
         // 예를 들어, Redis를 사용한다면 아래와 같이 캐시에서 itemLink에 해당하는 데이터를 삭제할 수 있습니다.
-        boolean result = redisTemplate.delete(itemLink);
+        boolean result = fundingService.clearCachedItem(itemLink);
         if (result) {
             return ResponseEntity.ok().build(); // 성공적으로 삭제되었을 때 HTTP 200 상태 코드 반환
         } else {
