@@ -10,6 +10,9 @@
 
     <!-- Optional: Bootstrap theme -->
     <link rel="stylesheet" href="https://bootswatch.com/4/cosmo/bootstrap.min.css">
+
+    <!-- jQuery library - 로드 순서를 먼저로 변경 -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 </head>
 <body>
 
@@ -92,6 +95,7 @@
 
 <!-- JavaScript to handle AJAX requests and update the preview section -->
 <script th:inline="javascript">
+    // '상품 등록' 기능
     function previewItem() {
         var itemLink = $("#modalItemLink").val();
         if (itemLink) {
@@ -106,15 +110,29 @@
                     previewSection.html("<h3>Preview Item Information:</h3>" +
                         "<p>Item Link: " + data.itemLink + "</p>" +
                         "<p>Item Image: <img src='" + data.itemImage + "' alt='Item Image'></p>");
-                    // 추가: 상품 정보를 캐시에 저장
+                    // 상품 정보를 캐시에 저장
                     $.post("/funding/saveToCache", {itemLink: itemLink});
-                    $('#deleteItemButton').show();
+                    $('#deleteItemButton').show(); // '상품 삭제' 버튼 보이기
                     $('#linkModal').modal('hide'); // 모달 닫기
                 },
                 error: function() {
-                    // 오류가 발생했을 때의 처리
+                    // 오류 처리
                 }
             });
+        }
+    }
+
+    function clearPreview() {
+        var itemLink = $("#modalItemLink").val(); // 링크 값을 가져온 후 변수에 저장
+        // Clear the preview section
+        $("#previewItemInfo").empty();
+        // Clear the modal item link
+        $("#modalItemLink").val("");
+        $('#deleteItemButton').hide(); // '상품 삭제' 버튼 숨기기
+
+        // 캐시에 저장된 상품 정보를 삭제
+        if (itemLink) {
+            $.post("/funding/clearCachedItem", {itemLink: itemLink});
         }
     }
 
@@ -130,27 +148,7 @@
         });
     });
 
-    function clearPreview() {
-        // Clear the preview section
-        $("#previewItemInfo").empty();
-        // Reset form fields including product link
-        // $("#title").val("");
-        // $("#content").val("");
-        // $("#goalAmount").val("");
-        // Clear other fields if needed
-
-        // Clear the product link
-        $("#modalItemLink").val("");
-        $('#deleteItemButton').hide();
-
-        // 추가: 캐시에 저장된 상품 정보를 삭제
-        var itemLink = $("#modalItemLink").val(); // 현재 모달의 링크 값을 가져옵니다.
-        if (itemLink) {
-            $.post("/funding/clearCachedItem", {itemLink: itemLink});
-        }
-    }
 </script>
-<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
