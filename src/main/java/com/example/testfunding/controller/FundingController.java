@@ -39,19 +39,12 @@ public class FundingController {
 
     @PostMapping("/saveToDatabase")
     public String saveToDatabase(@ModelAttribute FundingDetails fundingDetails, Model model) {
-        try {
-            Funding savedFunding = fundingService.saveToDatabase(fundingDetails);
-
-            if (savedFunding != null) {
-                model.addAttribute("savedFunding", savedFunding);
-                return "success";
-            } else {
-                model.addAttribute("error", "Failed to save funding. Please check your input and try again.");
-                return "error";
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            model.addAttribute("error", "An error occurred while processing your request. Please try again later.");
+        Funding savedFunding = fundingService.saveToDatabase(fundingDetails);
+        if (savedFunding != null) {
+            model.addAttribute("savedFunding", savedFunding);
+            return "success";
+        } else {
+            model.addAttribute("error", "Failed to save funding. Please check your input and try again.");
             return "error";
         }
     }

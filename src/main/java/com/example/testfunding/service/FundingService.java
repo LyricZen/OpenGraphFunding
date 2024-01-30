@@ -13,10 +13,9 @@ import org.jsoup.nodes.Element;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
-
-import static org.hibernate.query.sqm.tree.SqmNode.log;
 
 @Service
 @RequiredArgsConstructor
@@ -82,25 +81,25 @@ public class FundingService {
 
     @Transactional
     public Funding saveToDatabase(FundingDetails fundingDetails) {
-        try {
-            FundingProduct fundingProduct = getCachedFundingProduct();
-            if (fundingProduct != null) {
-                Product product = new Product(fundingProduct.getProductName(),fundingProduct.getProductImage());
-                productRepository.save(product);
+        FundingProduct fundingProduct = getCachedFundingProduct();
+        if (fundingProduct != null) {
+            String finalProductName = StringUtils.hasText(fundingDetails.getPublicName())
+                    ? fundingDetails.getPublicName()
+                    : fundingProduct.getProductName();
 
-                Funding funding = new Funding(fundingDetails.getTitle(),fundingDetails.getContent(),fundingDetails.getGoalAmount(),product);
-                Funding successFunding = fundingRepository.save(funding);
+            Product product = new Product(finalProductName, fundingProduct.getProductImage());
+            productRepository.save(product);
 
-                clearCache();
-
-                return successFunding;
-            }
-        } catch (Exception e) {
-            // 콘솔에 로그 출력
-            log.error("Failed to save funding. Please check your input and try again.", e);
-            throw new RuntimeException("Failed to save funding. Please check your input and try again.", e);
+            Funding funding = new Funding(
+                    fundingDetails.getTitle(),
+                    fundingDetails.getContent(),
+                    fundingDetails.getGoalAmount(),
+                    product,
+                    fundingDetails.isPublicFlag(),
+                    fundingDetails.getEndDate()
+            );
+            return fundingRepository.save(funding);
         }
-
         return null;
     }
 

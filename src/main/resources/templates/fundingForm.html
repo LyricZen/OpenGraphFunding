@@ -5,39 +5,68 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Funding Form</title>
 
-    <!-- jQuery 라이브러리 추가 -->
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    <!-- Optional: Bootstrap theme -->
+    <link rel="stylesheet" href="https://bootswatch.com/4/cosmo/bootstrap.min.css">
 </head>
 <body>
 
-<h1>Funding Form - Product Link</h1>
+<div class="container mt-5">
+    <h1 class="mb-4 text-center">Funding Form - Product Link</h1>
 
-<form id="linkForm">
-    <label for="productLink">Product Link:</label>
-    <input type="text" id="productLink" name="productLink" required>
-    <button type="button" onclick="previewProduct()">상품 등록</button>
-    <button type="button" onclick="clearPreview()">상품 삭제</button>
-</form>
+    <form id="linkForm" class="mb-4">
+        <div class="form-group">
+            <label for="productLink">Product Link:</label>
+            <input type="text" class="form-control" id="productLink" name="productLink" required>
+            <div class="mt-2">
+                <button type="button" class="btn btn-primary" onclick="previewProduct()">상품 등록</button>
+                <button type="button" class="btn btn-secondary" onclick="clearPreview()">상품 삭제</button>
+            </div>
+        </div>
+    </form>
 
-<hr>
+    <hr>
 
-<!-- Display preview product information -->
-<h2>Preview Product Information:</h2>
-<div id="previewProductInfo"></div>
+    <h2 class="mb-3">Preview Product Information:</h2>
+    <div id="previewProductInfo" class="mb-4">
 
-<form id="fundingForm" action="/funding/saveToDatabase" method="post">
-    <!-- Input fields for funding details -->
-    <label for="title">Funding 제목:</label>
-    <input type="text" id="title" name="title" required>
-    <br>
-    <label for="content">Funding 내용:</label>
-    <input type="text" id="content" name="content" required>
-    <br>
-    <label for="goalAmount">목표 금액:</label>
-    <input type="number" id="goalAmount" name="goalAmount" step="1" required>
-    <br>
-    <button type="submit">Save Funding</button>
-</form>
+    </div>
+    <form th:action="@{/funding/saveToDatabase}" th:object="${fundingDetails}" method="post">
+        <div>
+            <label for="publicName">상품 이름:</label>
+            <input type="text" th:field="*{publicName}" placeholder="상품 이름"/>
+        </div>
+        <div>
+            <label for="goalAmount">목표 금액:</label>
+            <input type="text" th:field="*{goalAmount}" placeholder="목표 금액"/>
+        </div>
+        <div>
+            <label for="title">제목:</label>
+            <input type="text" th:field="*{title}" placeholder="제목"/>
+        </div>
+        <div>
+            <label for="content">본문:</label>
+            <textarea th:field="*{content}" placeholder="본문"></textarea>
+        </div>
+        <div>
+            <label for="publicFlag">공개:</label>
+            <input type="checkbox" id="publicFlag" name="publicFlag" value="true" th:checked="*{publicFlag}"/>
+        </div>
+        <div>
+            <label for="privateFlag">비공개:</label>
+            <input type="checkbox" id="privateFlag" name="privateFlag" value="false" th:checked="*{!publicFlag}"/>
+        </div>
+        <div>
+            <label for="endDate">마감일 설정:</label>
+            <input type="date" th:field="*{endDate}"/>
+        </div>
+        <div class="form-group">
+            <button type="submit" class="btn btn-success">펀딩 등록하기</button>
+        </div>
+    </form>
+</div>
 
 <!-- JavaScript to handle AJAX requests and update the preview section -->
 <script th:inline="javascript">
@@ -48,7 +77,7 @@
             $.ajax({
                 type: "POST",
                 url: "/funding/previewProduct",
-                data: { productLink: productLink },
+                data: {productLink: productLink},
                 dataType: "json",
                 success: function (data) {
                     // Show the preview product information
@@ -59,11 +88,24 @@
                         "<p>Product Image: <img src='" + data.productImage + "' alt='Product Image'></p>");
 
                     // 추가: 상품 정보를 캐시에 저장
-                    $.post("/funding/saveToCache", { productLink: productLink });
+                    $.post("/funding/saveToCache", {productLink: productLink});
                 }
             });
         }
     }
+
+    $(document).ready(function () {
+        $('#publicFlag').change(function () {
+            if ($(this).is(':checked')) {
+                $('#privateFlag').prop('checked', false);
+            }
+        });
+        $('#privateFlag').change(function () {
+            if ($(this).is(':checked')) {
+                $('#publicFlag').prop('checked', false);
+            }
+        });
+    });
 
     function clearPreview() {
         // Clear the preview section
@@ -78,9 +120,12 @@
         $("#productLink").val("");
 
         // 추가: 캐시에 저장된 상품 정보를 삭제
-        $.post("/funding/clearCachedProduct", { productLink: $("#productLink").val() });
+        $.post("/funding/clearCachedProduct", {productLink: $("#productLink").val()});
     }
 </script>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 </body>
 </html>
