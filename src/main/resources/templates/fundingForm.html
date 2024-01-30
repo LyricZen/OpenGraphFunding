@@ -18,10 +18,10 @@
 
     <form id="linkForm" class="mb-4">
         <div class="form-group">
-            <label for="productLink">Product Link:</label>
-            <input type="text" class="form-control" id="productLink" name="productLink" required>
+            <label for="itemLink">Item Link:</label>
+            <input type="text" class="form-control" id="itemLink" name="itemLink" required>
             <div class="mt-2">
-                <button type="button" class="btn btn-primary" onclick="previewProduct()">상품 등록</button>
+                <button type="button" class="btn btn-primary" onclick="previewItem()">상품 등록</button>
                 <button type="button" class="btn btn-secondary" onclick="clearPreview()">상품 삭제</button>
             </div>
         </div>
@@ -29,8 +29,8 @@
 
     <hr>
 
-    <h2 class="mb-3">Preview Product Information:</h2>
-    <div id="previewProductInfo" class="mb-4">
+    <h2 class="mb-3">Preview Item Information:</h2>
+    <div id="previewItemInfo" class="mb-4">
 
     </div>
     <form th:action="@{/funding/saveToDatabase}" th:object="${fundingDetails}" method="post">
@@ -70,25 +70,24 @@
 
 <!-- JavaScript to handle AJAX requests and update the preview section -->
 <script th:inline="javascript">
-    function previewProduct() {
-        var productLink = $("#productLink").val();
-        if (productLink) {
+    function previewItem() {
+        var itemLink = $("#itemLink").val();
+        if (itemLink) {
             // AJAX request to the server for preview product information
             $.ajax({
                 type: "POST",
-                url: "/funding/previewProduct",
-                data: {productLink: productLink},
+                url: "/funding/previewItem",
+                data: {itemLink: itemLink},
                 dataType: "json",
                 success: function (data) {
                     // Show the preview product information
-                    var previewSection = $("#previewProductInfo");
-                    previewSection.html("<h3>Preview Product Information:</h3>" +
-                        "<p>Product Link: " + data.productLink + "</p>" +
-                        "<p>Product Name: " + data.productName + "</p>" +
-                        "<p>Product Image: <img src='" + data.productImage + "' alt='Product Image'></p>");
+                    var previewSection = $("#previewItemInfo");
+                    previewSection.html("<h3>Preview Item Information:</h3>" +
+                        "<p>Item Link: " + data.itemLink + "</p>" +
+                        "<p>Item Image: <img src='" + data.itemImage + "' alt='Item Image'></p>");
 
                     // 추가: 상품 정보를 캐시에 저장
-                    $.post("/funding/saveToCache", {productLink: productLink});
+                    $.post("/funding/saveToCache", {itemLink: itemLink});
                 }
             });
         }
@@ -109,7 +108,7 @@
 
     function clearPreview() {
         // Clear the preview section
-        $("#previewProductInfo").empty();
+        $("#previewItemInfo").empty();
         // Reset form fields including product link
         // $("#title").val("");
         // $("#content").val("");
@@ -117,10 +116,10 @@
         // Clear other fields if needed
 
         // Clear the product link
-        $("#productLink").val("");
+        $("#itemLink").val("");
 
         // 추가: 캐시에 저장된 상품 정보를 삭제
-        $.post("/funding/clearCachedProduct", {productLink: $("#productLink").val()});
+        $.post("/funding/clearCachedItem", {itemLink: $("#itemLink").val()});
     }
 </script>
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>

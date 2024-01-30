@@ -2,9 +2,11 @@ package com.example.testfunding.controller;
 
 import com.example.testfunding.dto.FundingDetails;
 import com.example.testfunding.entity.Funding;
-import com.example.testfunding.entity.FundingProduct;
+import com.example.testfunding.entity.FundingItem;
 import com.example.testfunding.service.FundingService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -24,16 +26,16 @@ public class FundingController {
     }
 
     // AJAX 요청을 처리하는 컨트롤러 메서드 추가
-    @PostMapping("/previewProduct")
+    @PostMapping("/previewItem")
     @ResponseBody
-    public FundingProduct previewProduct(@RequestParam String productLink) {
-        FundingProduct fundingProduct = fundingService.previewProduct(productLink);
-        return fundingProduct;
+    public FundingItem previewItem(@RequestParam String itemLink) {
+        FundingItem fundingItem = fundingService.previewItem(itemLink);
+        return fundingItem;
     }
 
     @PostMapping("/saveToCache")
-    public String saveToCache(String productLink) {
-        fundingService.saveToCache(productLink);
+    public String saveToCache(String itemLink) {
+        fundingService.saveToCache(itemLink);
         return "redirect:/funding/details";
     }
 
@@ -48,6 +50,19 @@ public class FundingController {
             return "error";
         }
     }
+    @PostMapping("/clearCachedItem")
+    public ResponseEntity<?> clearCachedItem(@RequestParam String itemLink) {
+        // 캐시 삭제 로직 구현
+        // 예를 들어, Redis를 사용한다면 아래와 같이 캐시에서 itemLink에 해당하는 데이터를 삭제할 수 있습니다.
+        boolean result = redisTemplate.delete(itemLink);
+        if (result) {
+            return ResponseEntity.ok().build(); // 성공적으로 삭제되었을 때 HTTP 200 상태 코드 반환
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // 데이터가 캐시에 없을 때 HTTP 404 상태 코드 반환
+        }
+    }
+
+
 
     @PostMapping("/cancelFundingCreation")
     public String cancelFundingCreation() {

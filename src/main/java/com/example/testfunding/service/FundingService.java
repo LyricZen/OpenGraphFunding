@@ -2,10 +2,8 @@ package com.example.testfunding.service;
 
 import com.example.testfunding.dto.FundingDetails;
 import com.example.testfunding.entity.Funding;
-import com.example.testfunding.entity.FundingProduct;
-import com.example.testfunding.entity.Product;
+import com.example.testfunding.entity.FundingItem;
 import com.example.testfunding.repository.FundingRepository;
-import com.example.testfunding.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -13,7 +11,6 @@ import org.jsoup.nodes.Element;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 
@@ -22,79 +19,65 @@ import java.io.IOException;
 public class FundingService {
 
     private final RedisTemplate<String, Object> redisTemplate;
-    private final ProductRepository productRepository;
     private final FundingRepository fundingRepository;
 
-    public void saveToCache(String productLink) {
-        FundingProduct fundingProduct = new FundingProduct();
-        fundingProduct.setProductLink(productLink);
+    public void saveToCache(String itemLink) {
+        FundingItem fundingItem = new FundingItem();
+        fundingItem.setItemLink(itemLink);
 
         try {
-            Document document = Jsoup.connect(productLink).timeout(5000).get();
-            String productName = getMetaTagContent(document, "og:title");
-            String productImage = getMetaTagContent(document, "og:image");
+            Document document = Jsoup.connect(itemLink).timeout(5000).get();
+            String itemImage = getMetaTagContent(document, "og:image");
 
-            fundingProduct.setProductName(productName);
-            fundingProduct.setProductImage(productImage);
+            fundingItem.setItemImage(itemImage);
         } catch (IOException e) {
             e.printStackTrace();
             // 예외 처리: 상품 정보를 가져오지 못할 경우
         }
-        redisTemplate.opsForValue().set("cachedFundingProduct", fundingProduct);
+        redisTemplate.opsForValue().set("cachedFundingItem", fundingItem);
     }
 
-    public FundingProduct getCachedFundingProduct() {
-        return (FundingProduct) redisTemplate.opsForValue().get("cachedFundingProduct");
+    public FundingItem getCachedFundingProduct() {
+        return (FundingItem) redisTemplate.opsForValue().get("cachedFundingItem");
     }
 
     // 새로운 메서드 추가
-    public FundingProduct previewProduct(String productLink) {
-        FundingProduct fundingProduct = new FundingProduct();
-        fundingProduct.setProductLink(productLink);
+    public FundingItem previewItem(String itemLink) {
+        FundingItem fundingItem = new FundingItem();
+        fundingItem.setItemLink(itemLink);
 
         try {
-            Document document = Jsoup.connect(productLink).timeout(10000).get();
+            Document document = Jsoup.connect(itemLink).timeout(5000).get();
 
             // 예외 처리: 상품 정보를 가져오지 못할 경우
             if (document == null) {
                 return null;
             }
 
-            String productName = getMetaTagContent(document, "og:title");
-            String productImage = getMetaTagContent(document, "og:image");
-
+            String itemImage = getMetaTagContent(document, "og:image");
             // 예외 처리: 필수 정보가 없을 경우
-            if (productName == null || productImage == null) {
+            if (itemImage == null) {
                 return null;
             }
-
-            fundingProduct.setProductName(productName);
-            fundingProduct.setProductImage(productImage);
+            fundingItem.setItemImage(itemImage);
         } catch (IOException e) {
             e.printStackTrace();
             // 예외 처리: 상품 정보를 가져오지 못할 경우
             return null;
         }
-
-        return fundingProduct;
+        return fundingItem;
     }
 
     @Transactional
     public Funding saveToDatabase(FundingDetails fundingDetails) {
-        FundingProduct fundingProduct = getCachedFundingProduct();
-        if (fundingProduct != null) {
-            String finalProductName = StringUtils.hasText(fundingDetails.getPublicName())
-                    ? fundingDetails.getPublicName()
-                    : fundingProduct.getProductName();
-
-            Product product = new Product(finalProductName, fundingProduct.getProductImage());
-            productRepository.save(product);
-
+        FundingItem fundingItem = getCachedFundingProduct();
+        if (fundingItem != null) {
             Funding funding = new Funding(
+                    fundingItem.getItemLink(),
+                    fundingItem.getItemImage(),
                     fundingDetails.getTitle(),
                     fundingDetails.getContent(),
                     fundingDetails.getGoalAmount(),
-                    product,
                     fundingDetails.isPublicFlag(),
                     fundingDetails.getEndDate()
             );
@@ -104,7 +87,7 @@ public class FundingService {
     }
 
     public void clearCache() {
-        redisTemplate.delete("cachedFundingProduct");
+        redisTemplate.delete("cachedFundingItem");
     }
 
     private static String getMetaTagContent(Document document, String property) {
