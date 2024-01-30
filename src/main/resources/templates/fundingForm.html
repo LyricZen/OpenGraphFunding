@@ -14,22 +14,42 @@
 <body>
 
 <div class="container mt-5">
-    <h1 class="mb-4 text-center">Funding Form - Product Link</h1>
 
-    <form id="linkForm" class="mb-4">
-        <div class="form-group">
-            <label for="itemLink">Item Link:</label>
-            <input type="text" class="form-control" id="itemLink" name="itemLink" required>
-            <div class="mt-2">
-                <button type="button" class="btn btn-primary" onclick="previewItem()">상품 등록</button>
-                <button type="button" class="btn btn-secondary" onclick="clearPreview()">상품 삭제</button>
+    <!-- Button trigger modal -->
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#linkModal">
+        링크 추가
+    </button>
+
+    <!-- Modal -->
+    <div class="modal fade" id="linkModal" tabindex="-1" aria-labelledby="linkModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="linkModalLabel">상품 링크 추가</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="modalLinkForm">
+                        <div class="form-group">
+                            <label for="modalItemLink">Item Link:</label>
+                            <input type="text" class="form-control" id="modalItemLink" name="itemLink" required>
+                        </div>
+                        <!-- '상품 등록' 버튼 -->
+                        <button type="button" class="btn btn-primary" onclick="previewItem()">상품 등록</button>
+                        <!-- '닫기' 버튼 -->
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">닫기</button>
+                    </form>
+                </div>
             </div>
         </div>
-    </form>
+    </div>
+
+    <button type="button" class="btn btn-secondary" id="deleteItemButton" style="display: none;" onclick="clearPreview()">상품 삭제</button>
 
     <hr>
 
-    <h2 class="mb-3">Preview Item Information:</h2>
     <div id="previewItemInfo" class="mb-4">
 
     </div>
@@ -73,9 +93,8 @@
 <!-- JavaScript to handle AJAX requests and update the preview section -->
 <script th:inline="javascript">
     function previewItem() {
-        var itemLink = $("#itemLink").val();
+        var itemLink = $("#modalItemLink").val();
         if (itemLink) {
-            // AJAX request to the server for preview product information
             $.ajax({
                 type: "POST",
                 url: "/funding/previewItem",
@@ -87,9 +106,13 @@
                     previewSection.html("<h3>Preview Item Information:</h3>" +
                         "<p>Item Link: " + data.itemLink + "</p>" +
                         "<p>Item Image: <img src='" + data.itemImage + "' alt='Item Image'></p>");
-
                     // 추가: 상품 정보를 캐시에 저장
                     $.post("/funding/saveToCache", {itemLink: itemLink});
+                    $('#deleteItemButton').show();
+                    $('#linkModal').modal('hide'); // 모달 닫기
+                },
+                error: function() {
+                    // 오류가 발생했을 때의 처리
                 }
             });
         }
@@ -117,10 +140,14 @@
         // Clear other fields if needed
 
         // Clear the product link
-        $("#itemLink").val("");
+        $("#modalItemLink").val("");
+        $('#deleteItemButton').hide();
 
         // 추가: 캐시에 저장된 상품 정보를 삭제
-        $.post("/funding/clearCachedItem", {itemLink: $("#itemLink").val()});
+        var itemLink = $("#modalItemLink").val(); // 현재 모달의 링크 값을 가져옵니다.
+        if (itemLink) {
+            $.post("/funding/clearCachedItem", {itemLink: itemLink});
+        }
     }
 </script>
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
