@@ -50,13 +50,15 @@
             <label for="content">본문:</label>
             <textarea th:field="*{content}" placeholder="본문"></textarea>
         </div>
-        <div>
-            <label for="publicFlag">공개:</label>
-            <input type="checkbox" id="publicFlag" name="publicFlag" value="true" th:checked="*{publicFlag}"/>
-        </div>
-        <div>
-            <label for="privateFlag">비공개:</label>
-            <input type="checkbox" id="privateFlag" name="privateFlag" value="false" th:checked="*{!publicFlag}"/>
+        <div class="form-group">
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="publicFlag" id="public" value="true" th:checked="*{publicFlag}">
+                <label class="form-check-label" for="public">공개</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="publicFlag" id="private" value="false" th:checked="*{!publicFlag}">
+                <label class="form-check-label" for="private">비공개</label>
+            </div>
         </div>
         <div>
             <label for="endDate">마감일 설정:</label>
@@ -93,16 +95,15 @@
         }
     }
 
-    $(document).ready(function () {
-        $('#publicFlag').change(function () {
-            if ($(this).is(':checked')) {
-                $('#privateFlag').prop('checked', false);
-            }
+    $(document).ready(function() {
+        // '공개' 체크박스의 상태가 바뀔 때마다 '비공개' 체크박스의 체크를 해제
+        $('#publicFlag').change(function() {
+            $('#privateFlag').prop('checked', !this.checked);
         });
-        $('#privateFlag').change(function () {
-            if ($(this).is(':checked')) {
-                $('#publicFlag').prop('checked', false);
-            }
+
+        // '비공개' 체크박스의 상태가 바뀔 때마다 '공개' 체크박스의 체크를 해제
+        $('#privateFlag').change(function() {
+            $('#publicFlag').prop('checked', !this.checked);
         });
     });
 

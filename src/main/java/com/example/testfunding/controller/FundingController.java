@@ -42,6 +42,7 @@ public class FundingController {
     @PostMapping("/saveToDatabase")
     public String saveToDatabase(@ModelAttribute FundingDetails fundingDetails, Model model) {
         Funding savedFunding = fundingService.saveToDatabase(fundingDetails);
+        System.out.println(fundingDetails.isPublicFlag());
         if (savedFunding != null) {
             model.addAttribute("savedFunding", savedFunding);
             return "success";
@@ -50,6 +51,7 @@ public class FundingController {
             return "error";
         }
     }
+
     @PostMapping("/clearCachedItem")
     public ResponseEntity<?> clearCachedItem(@RequestParam String itemLink) {
         // 캐시 삭제 로직 구현

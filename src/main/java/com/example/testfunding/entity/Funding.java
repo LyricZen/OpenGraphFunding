@@ -24,7 +24,7 @@ public class Funding {
     private String title;
     private String content;
     private Integer goalAmount;
-    private boolean publicFlag = false;
+    private boolean publicFlag;
     private LocalDate endDate;
 
     public Funding(String itemLink, String itemImage, String itemName, String title, String content, Integer goalAmount, boolean publicFlag, LocalDate endDate) {
