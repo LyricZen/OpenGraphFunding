@@ -1,6 +1,6 @@
 package com.example.testfunding.service;
 
-import com.example.testfunding.dto.FundingDetails;
+import com.example.testfunding.dto.FundingCreateRequestDto;
 import com.example.testfunding.entity.Funding;
 import com.example.testfunding.entity.FundingItem;
 import com.example.testfunding.repository.FundingRepository;
@@ -14,6 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 
+import static org.hibernate.query.sqm.tree.SqmNode.log;
+
 @Service
 @RequiredArgsConstructor
 public class FundingService {
@@ -21,17 +23,20 @@ public class FundingService {
     private final RedisTemplate<String, Object> redisTemplate;
     private final FundingRepository fundingRepository;
 
+    private static final int TIMEOUT = 10000; // 10초
+
     public void saveToCache(String itemLink) {
         FundingItem fundingItem = new FundingItem();
         fundingItem.setItemLink(itemLink);
 
         try {
-            Document document = Jsoup.connect(itemLink).timeout(5000).get();
+            Document document = Jsoup.connect(itemLink).timeout(TIMEOUT).get();
             String itemImage = getMetaTagContent(document, "og:image");
 
             fundingItem.setItemImage(itemImage);
         } catch (IOException e) {
-            e.printStackTrace();
+            // 로깅을 개선하여 예외의 상세 정보를 기록
+            log.error("Error fetching data from the link: " + itemLink, e);
             // 예외 처리: 상품 정보를 가져오지 못할 경우
         }
         redisTemplate.opsForValue().set("cachedFundingItem", fundingItem);
@@ -47,40 +52,38 @@ public class FundingService {
         fundingItem.setItemLink(itemLink);
 
         try {
-            Document document = Jsoup.connect(itemLink).timeout(5000).get();
+            Document document = Jsoup.connect(itemLink).timeout(TIMEOUT).get();
 
-            // 예외 처리: 상품 정보를 가져오지 못할 경우
             if (document == null) {
                 return null;
             }
 
             String itemImage = getMetaTagContent(document, "og:image");
-            // 예외 처리: 필수 정보가 없을 경우
             if (itemImage == null) {
                 return null;
             }
             fundingItem.setItemImage(itemImage);
         } catch (IOException e) {
-            e.printStackTrace();
-            // 예외 처리: 상품 정보를 가져오지 못할 경우
+            // 로깅을 개선하여 예외의 상세 정보를 기록
+            log.error("Error previewing item from the link: " + itemLink, e);
             return null;
         }
         return fundingItem;
     }
 
     @Transactional
-    public Funding saveToDatabase(FundingDetails fundingDetails) {
+    public Funding saveToDatabase(FundingCreateRequestDto fundingCreateRequestDto) {
         FundingItem fundingItem = getCachedFundingProduct();
         if (fundingItem != null) {
             Funding funding = new Funding(
                     fundingItem.getItemLink(),
                     fundingItem.getItemImage(),
-                    fundingDetails.getItemName(),
-                    fundingDetails.getTitle(),
-                    fundingDetails.getContent(),
-                    fundingDetails.getGoalAmount(),
-                    fundingDetails.isPublicFlag(),
-                    fundingDetails.getEndDate()
+                    fundingCreateRequestDto.getItemName(),
+                    fundingCreateRequestDto.getTitle(),
+                    fundingCreateRequestDto.getContent(),
+                    fundingCreateRequestDto.getGoalAmount(),
+                    fundingCreateRequestDto.isPublicFlag(),
+                    fundingCreateRequestDto.getEndDate()
             );
             return fundingRepository.save(funding);
         }
