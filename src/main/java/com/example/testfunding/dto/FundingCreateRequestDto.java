@@ -7,7 +7,7 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
-public class FundingDetails {
+public class FundingCreateRequestDto {
     private String itemName;
     private String title;
     private String content;
@@ -17,7 +17,7 @@ public class FundingDetails {
 
     // 생성자, Getter, Setter 등 필요한 메서드를 추가할 수 있습니다.
 
-    public FundingDetails() {
+    public FundingCreateRequestDto() {
         // 기본 생성자
     }
 }

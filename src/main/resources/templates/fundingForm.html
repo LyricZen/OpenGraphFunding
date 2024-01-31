@@ -56,7 +56,7 @@
     <div id="previewItemInfo" class="mb-4">
 
     </div>
-    <form th:action="@{/funding/saveToDatabase}" th:object="${fundingDetails}" method="post">
+    <form th:action="@{/funding/saveToDatabase}" th:object="${fundingCreateRequestDto}" method="post">
         <div>
             <label for="itemName">상품 이름:</label>
             <input type="text" th:field="*{itemName}" placeholder="상품 이름"/>
